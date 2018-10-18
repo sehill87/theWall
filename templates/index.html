@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.12.1/themes/sunny/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            $("#tabs").tabs()
+        });  
+    </script>
+    <style>
+        p {
+            color: red;
+        }
+    </style>
+    <title>Simple Wall W/Registration and Login</title>
+</head>
+
+<body>
+    <div class='container'>
+        <h1>Registration and Login:</h1>
+        <div id="tabs">
+                <ul>
+                    <li><a href="#tabs-1">Registration</a></li>
+                    <li><a href="#tabs-2">Login</a></li>
+                    
+                </ul>
+                <div id="tabs-1">
+                    <form action="/register", method="POST">
+
+                        <div class="form-group">
+                        {% with errors = get_flashed_messages(category_filter=["not_logged_in"]) %}
+                            {% if errors %}
+                                {% for msg in errors %}
+                                    <p class="error">{{ msg }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        First Name: <input type="text" name="first_name" value="">
+                            {% with errors = get_flashed_messages(category_filter=["first_name"]) %}
+                                {% if errors %}
+                                    {% for msg in errors %}
+                                        <p class="error">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="form-group">
+                            Last Name: <input type="text" name="last_name" value="">
+                            {% with errors = get_flashed_messages(category_filter=["last_name"]) %}
+                                {% if errors %}
+                                    {% for msg in errors %}
+                                        <p class="error">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                            <div class="form-group">
+                            Email: <input type="text" name="email" value="">
+                            {% with errors = get_flashed_messages(category_filter=["email"]) %}
+                                {% if errors %}
+                                    {% for msg in errors %}
+                                        <p class="error">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            </div>
+                        <div class="form-group">
+                            Password: <input type="password" name="password" value="" placeholder="Password">
+                            {% with errors = get_flashed_messages(category_filter=["password"]) %}
+                                {% if errors %}
+                                    {% for msg in errors %}
+                                        <p class="error">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="form-group">
+                            Confirm Password: <input type="password" name="c_password" value="">
+                            {% with errors = get_flashed_messages(category_filter=["c_password"]) %}
+                                {% if errors %}
+                                    {% for msg in errors %}
+                                        <p class="error">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <input type="submit" value="register" class="blue">
+                    </form>
+                </div>
+                <div id="tabs-2">
+                    <form action="/login_validation", method="POST">
+                        <div class="form-group">
+                            Email: <input type="text" name="email" value="">
+                                {% with errors = get_flashed_messages(category_filter=["email1"]) %}
+                                    {% if errors %}
+                                        {% for msg in errors %}
+                                            <p class="error">{{ msg }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                        </div>
+                        <div class="form-group">
+                            Password: <input type="password" name="password" value="">
+                                {% with errors = get_flashed_messages(category_filter=["password1"]) %}
+                                    {% if errors %}
+                                        {% for msg in errors %}
+                                            <p class="error">{{ msg }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                        </div>
+                        <input type="submit" value="login" class="blue">
+                    </form>
+                </div>
+            </div>
+        </div>
+    
+    
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
