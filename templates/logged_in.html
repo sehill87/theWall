@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Login Page</title>
+    <style>
+        .input1 {
+            margin-left: 100px;
+        }
+
+        h5 {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div style='margin-top: 20px;'>
+            <h5>Welcome {{ session['first_name'] }}!
+                <a href="/edit/{{ session['userid'] }}/user" class='a'>Edit My Account</a>
+                <a href='/logout' class='btn btn-secondary btn-sm alogin'>Logout</a>
+                <a href='/user_quotes' class='btn btn-primary btn-sm alogin'>View my quotes!</a>
+
+            </h5>
+        </div>
+        <div>
+            <ul class="list-group">
+                <li class="list-group-item">You have succesfully logged in!</li>
+            </ul>
+            <div class="container jumbotron">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Quotes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quote in quotes %}
+                                <tr>
+
+                                    <td>{{ quote['author'] }}: {{ quote['quote'] }}
+                                    
+                                        <h5>Posted by: Scott</h5>
+                                        <a class='a' href="/delete/{{ quote['id'] }}">Delete</a>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-sm-4">
+                        <p>Add a Quote!:</p>
+                        <form action="/validate_quotes" method="POST">
+                            <div class="form-group" style="margin-top: 20px;">
+                                Author: <input type="text" name="author" value="">
+                                {% with errors = get_flashed_messages(category_filter=["author"]) %}
+                                {% if errors %}
+                                {% for msg in errors %}
+                                <p class="error">{{ msg }}</p>
+                                {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            <div class="form-group">
+                                Quote: <input type="text" name="quote" value="">
+                                {% with errors = get_flashed_messages(category_filter=["quote"]) %}
+                                {% if errors %}
+                                {% for msg in errors %}
+                                <p class="error">{{ msg }}</p>
+                                {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            <input type="submit" value="Submit" class="btn btn-primary" style="margin-bottom: 20px;">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+</body>
+
+</html>

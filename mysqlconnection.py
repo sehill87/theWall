@@ -35,9 +35,9 @@ class MySQLConnection:
             except Exception as e:
                 print("Something went wrong", e)
                 return False
-            finally: 
-                # closes the connection
-                self.connection.close()
+            # finally: 
+            #     # closes the connection
+            #     self.connection.close()
 def connectToMySQL(db):
     return MySQLConnection(db)
     

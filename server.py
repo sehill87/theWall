@@ -5,12 +5,13 @@ from mysqlconnection import connectToMySQL
 
 app = Flask(__name__)
 app.secret_key = 'secrets'
-mysql = connectToMySQL('simpleWall')
+mysql = connectToMySQL('register_login')
 bcrypt = Bcrypt(app)
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9\.\+_-]+@[a-zA-Z0-9\._-]+\.[a-zA-Z]*$')
 passwordRegex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$')
 
+# Validate registration
 def validateRegistration():
     if len(request.form['first_name']) < 1:
         flash('First name cannot be blank', 'first_name')
@@ -26,7 +27,6 @@ def validateRegistration():
     else:
          session['last_name'] = request.form['last_name']  
 
-    mysql = connectToMySQL('simpleWall')
     email = request.form['email']
     if not email:
         flash("Email cannot be blank.", 'email')
@@ -41,7 +41,6 @@ def validateRegistration():
         if email == x['email']:
             flash("Email already exists", 'email')
     
-   
     if len(request.form['password']) < 1:
         flash('Password cannot be blank', 'password')
     elif len(request.form['password']) < 8:
@@ -50,7 +49,7 @@ def validateRegistration():
         flash('Password must contian at least one upper and lowercase letter and one digit', 'password')
     else:
         session['password'] = request.form['password']
-    #validate confirm password goes here
+
     if len(request.form['c_password']) < 1:
         flash('Confirm password cannot be blank', 'c_password')
     elif request.form['c_password'] != request.form['password']:
@@ -63,9 +62,10 @@ def validateRegistration():
     else:
         return True
   
-    #validate login
+#validate login
 def validate_login():
-    mysql = connectToMySQL('simpleWall')
+    #set variables
+    mysql = connectToMySQL('register_login')
     email = request.form['email']
     query = "select email from users where email = %(email)s;"
     data = {
@@ -75,6 +75,7 @@ def validate_login():
     print(email)
     print(emails)
     
+    #validate email
     if not email:
         flash("Email cannot be blank.", 'email1')
     elif not EMAIL_REGEX.match(email):
@@ -84,6 +85,7 @@ def validate_login():
     else:
         session['email'] = request.form['email']
 
+    #validate password
     if len(request.form['password']) < 1:
         flash('Password cannot be blank', 'password1')
     elif len(request.form['password']) < 8:
@@ -91,28 +93,44 @@ def validate_login():
     elif not passwordRegex.match(request.form['password']):
         flash('Password must contian at least one upper and lowercase letter and one digit', 'password1')
     else:
-        session['password'] = request.form['password']
-
-    
+        session['password'] = request.form['password'] 
 
     if '_flashes' in session.keys():
-        flash('Invalid login, please return to login page!', 'not_logged_in')
+        flash('Invalid login:', 'not_logged_in')
         return False
     else:
         return True
 
-    #app.route here
+#validate quotes
+def validate():
+    if len(request.form['author']) < 1:
+        flash('Author cannot be blank', 'author')
+    else:
+        session['author'] = request.form['author']
 
+    if len(request.form['quote']) < 1:
+        flash('Quote cannot be blank', 'quote')
+    else:
+        session['quote'] = request.form['quote']
+    
+    if '_flashes' in session.keys():
+        return False
+    else: 
+        return True
+    
+
+#app.route here
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/register', methods=['POST'])
 def register():
+    
     if validateRegistration() == False:
         return redirect('/')
     else:
-        mysql = connectToMySQL('simpleWall')
+        mysql = connectToMySQL('register_login')
         pw_hash = bcrypt.generate_password_hash(request.form['password'])
         query = "INSERT INTO users (first_name, last_name, email, password, created_at, updated_at) VALUES (%(first_name)s, %(last_name)s, %(email)s, %(password)s, NOW(), NOW());"
         data = {
@@ -131,7 +149,7 @@ def validateLogin():
     if validate_login() == False:
         return redirect('/')
     else:
-        mysql = connectToMySQL('simpleWall') 
+        mysql = connectToMySQL('register_login') 
         query = "SELECT * FROM users WHERE email = %(email)s;"
         data = { "email" : request.form['email'] }
         result = mysql.query_db(query, data)
@@ -148,12 +166,10 @@ def loggedIn():
         flash('User not loggged in', 'not_logged_in')
     if "_flashes" in session.keys():
         return redirect('/')
-    mysql = connectToMySQL('simpleWall')
+    mysql = connectToMySQL('register_login')
     query = "select * from users where id = %(id)s"
     data = {
         'id' : session['userid'],
-        'Y' : "%m-%d-%Y",
-        'T' : "%h:%i:%s" "%p"
     }
     user = mysql.query_db(query, data)
     user = user[0]
@@ -161,66 +177,119 @@ def loggedIn():
     session['last_name'] = user['last_name']
     session['email'] = user['email']  
     
-    mysql = connectToMySQL('simpleWall')
-    query = "SELECT users.first_name, messages.message, messages.id, DATE_FORMAT(messages.created_at, %(Y)s ' @ ' %(T)s) from users join messages on users.id = messages.sender_id where recipient_id = %(id)s ORDER BY messages.created_at DESC"
-    messages = mysql.query_db(query, data)
-    print(messages)
+    mysql = connectToMySQL('register_login')
+    query = 'SELECT id, author, quote, user_id from quotes'
     
-    # mysql = connectToMySQL('simpleWall')
-    # query = "SELECT DATE_FORMAT(created_at, %(Y)s) from messages where recipient_id = %(id)s"
-    # date = mysql.query_db(query, data)
-
-    #print(date, 'this should be the year')
-
-    mysql = connectToMySQL('simpleWall')
-    query = 'SELECT count(*) from messages where recipient_id = %(id)s'
-    count = mysql.query_db(query, data)
-    print('this is the count', count[0]["count(*)"])
-
-    mysql = connectToMySQL('simpleWall')
-    query = 'SELECT count(*) from messages where sender_id = %(id)s'
-    sender_count = mysql.query_db(query, data)
-
-    mysql = connectToMySQL('simpleWall')
-    query = 'SELECT * from users where id != %(id)s'
-    user_list = mysql.query_db(query, data)
-    print(user_list)
-    return render_template('login_page.html', user_names = user_list, messages = messages, count = count[0]['count(*)'], sender_count = sender_count[0]['count(*)'])
-
-@app.route('/sendMessages', methods=['POST'])
-def messages():
-    print(request.form, "this is to see whats happening. ")
-    mysql = connectToMySQL('simpleWall')
-    query = "INSERT INTO messages (message, sender_id, recipient_id, created_at, updated_at) VALUES (%(message)s, %(sender_id)s, %(recipient_id)s, NOW(), NOW());"
-    data = {
-        'message' : request.form['message'],
-        'sender_id' : session['userid'],
-        'recipient_id' : request.form['recipient_id']
-    }
-    print(data)
-    print("this is the request", request.form)
-    new_message_id = mysql.query_db(query, data)
+    quotes = mysql.query_db(query, data)
     
-    return redirect('/logged_in')
+    print(quotes)
+    print(session['userid'])
+    mysql = connectToMySQL('register_login')
+    query = 'SELECT count(*) from likes where wish_id = 17'
+    like_count = mysql.query_db(query)
+    return render_template('logged_in.html', quotes = quotes)
+
 
 @app.route('/success')
 def success():
+    if not'userid' in session.keys():
+        flash('User not loggged in', 'not_logged_in')
+        return redirect('/')
     return render_template('success.html')
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
-@app.route('/delete/<message_id>')
-def delete(message_id):
-    mysql = connectToMySQL('simpleWall')
-    query = "DELETE FROM messages where id = %(id)s;"
+
+
+@app.route('/user_quotes')
+def user_quotes():
+    if not'userid' in session.keys():
+        flash('User not loggged in', 'not_logged_in')
+        return redirect('/')
+    mysql = connectToMySQL('register_login')
+    query = "SELECT * FROM quotes WHERE user_id = %(id)s"
     data = {
-        "id" : int(message_id)
+        'id' : session['userid'],
+        
+    }
+    user_quotes = mysql.query_db(query, data)
+
+    return render_template('user_quotes.html', quotes = user_quotes)
+
+@app.route('/validate_quotes', methods=['POST'])
+def validate_quotes():
+    if validate() == False:
+        print(False)
+        return redirect('/logged_in')
+    else:
+        mysql = connectToMySQL('register_login')
+        query = "INSERT INTO quotes (author, quote, user_id, created_at, updated_at) VALUES (%(author)s, %(quote)s, %(user_id)s, NOW(), NOW());"
+        data = {
+            'author' : request.form['author'],
+            'user_id' : session['userid'],
+            'quote' : request.form['quote']
+        }
+        quotes = mysql.query_db(query, data)
+    return redirect('/logged_in')
+
+
+@app.route('/delete/<quote_id>')
+def delete_wish(quote_id):
+    mysql = connectToMySQL('register_login')
+    query = "DELETE FROM quotes where id = %(id)s;"
+    data = {
+        "id" : int(quote_id)
     }
     mysql.query_db(query, data)
     return redirect('/logged_in')
+
+@app.route("/edit/<user_id>/user")
+def edit(user_id):
+    if not'userid' in session.keys():
+        flash('User not loggged in', 'not_logged_in')
+        return redirect('/')
+    
+    data = {
+        "id" : session['userid']
+    }
+    mysql = connectToMySQL('register_login')
+    query = "Select * from users where id = %(id)s"
+    edit_user = mysql.query_db(query, data)
+    print(edit_user)
+    id = session['userid']
+    print(id)
+    return render_template('edit.html', update = edit_user, id = user_id)
+
+@app.route("/edit/<id>", methods=['POST'])
+def update(id):
+    data = {
+        "id" : id,
+        "first_name" : request.form['first_name'],
+        "last_name" : request.form['last_name'],
+        "email" : request.form['email']
+    }
+    mysql = connectToMySQL('register_login')
+    query = "UPDATE users SET first_name = %(first_name)s, last_name = %(last_name)s, updated_at = NOW() where id = %(id)s;"
+    mysql.query_db(query, data)
+    return redirect('/logged_in')
+
+@app.route('/like/<grant_id>')
+def like(grant_id):
+    print(grant_id)
+    mysql = connectToMySQL('register_login')
+    query = "INSERT INTO likes (user_id, wish_id) VALUES (%(user_id)s, %(grant_id)s)"
+    data = {
+        'user_id' : session['userid'],
+        'grant_id' : int(grant_id)
+    }
+    mysql.query_db(query, data)
+    
+    return redirect('/logged_in')
+
+
 
 def debugHelp(message = ""):
     print("\n\n-----------------------", message, "--------------------")

@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
         crossorigin="anonymous">
 
-    <title>Rgistered Page</title>
+    <title>Bootstrap Starter Template</title>
 </head>
 
 <body>
-    <div class="container jumbotron">
+    <div class="container">
         <div style="margin-top: 20px;">
             <form action="/success" method="POST">
                 <h2>Thank you for your registration!</h2>
@@ -23,12 +23,12 @@
         <h1>Welcome {{ session['first_name'] }}! </h1>
         <div>
             <form class="inline" action="/logout" method="POST">
-                <input class='btn btn-warning' type='submit' value='Logout'>
+                <input type='submit' value='Logout'>
             </form>
         </div>
         <div style="margin-top: 20px;">
             <form class="inline" action="/logged_in" method="GET">
-                <input class='btn btn-success' type='submit' value='Login Page'>
+                <input type='submit' value='Login Page'>
             </form>
         </div>
     </div>
